@@ -1,35 +1,30 @@
-import os
-import json
-
 from flask import Flask, flash, url_for, redirect, render_template, request, session
 from passlib.hash import sha256_crypt
-from flask_pymongo import PyMongo
-from flask import request
-import yaml
+from flask_mysqldb import MySQL
 
 app = Flask(__name__)
-#usr = os.environ['MONGO_DB_USER']
-#pwd = os.environ['MONGO_DB_PASS']
 
-#db1
-mongo1 = PyMongo(app, uri="mongodb://localhost:27017/admin_db")
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = ''
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'preptime_admin, preptime_students, preptime_school'
 
-#db2
-mongo2 = PyMongo(app, uri="mongodb://localhost:27017/school_admin_db")
-
-#db3
-mongo3 = PyMongo(app, uri="mongodb://localhost:27017/student_db")
-
-
-mongo = PyMongo(app)
-
-
+mysql = MySQL(app)
 
 
 #run home termplate
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template("index.html", name=NameError)
+    if request.method == "POST":
+        details = request.form
+        email = details['email']
+        password = details['pswd']
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO preptime_school(email, password) VALUES (%c, %c)", (email, password))
+        mysql.connection.commit()
+        cur.close()
+        return render_template("schdashboard.html", name=NameError)
+    return render_template('index.html')
 
     
 
@@ -48,18 +43,20 @@ def atmoney():
 
 #prepadmin portal
 def prepdashboard():
-    online_users =  mongo.db.users.find_one_or_404({"online": True})
-    return render_template("prepdashboard.html", user=user)
+    if request.method == "POST":
+        details = request.form
+        
+    return render_template("index.html", user=user)
 
 #schooladmin portal
 def schdashboard():
-    online_users =  mongo.db.users.find_one_or_404({"online": True})
+    
     return render_template("schdashboard.html", user=user)
 
 
 #for student portal
 def students():
-    online_users =  mongo.db.users.find_one_or_404({"online": True})
+    
     return render_template("student.html", user=user)
 
 
