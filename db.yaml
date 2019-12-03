@@ -1,4 +1,4 @@
 mysql_host: 'localhost'
 mysql_user: ''
 mysql_password: ''
-mysql_db: 'preptime_admin, preptime_students, preptime_school'
+mysql_db: 'preptime_db'
